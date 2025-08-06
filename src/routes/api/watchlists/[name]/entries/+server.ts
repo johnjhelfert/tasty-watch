@@ -1,20 +1,12 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
+import { getAuthHeaders } from '$lib/utils/auth.js';
 
 const API_BASE_URL = 'https://api.cert.tastyworks.com';
 
-function getAuthHeaders(sessionToken: string | null) {
-  return {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-    'User-Agent': 'TastyWatch/1.0.0 (Custom Desktop App)',
-    'Authorization': sessionToken ? `Bearer ${sessionToken}` : '',
-  };
-}
-
 export const POST: RequestHandler = async ({ request, params }) => {
   try {
-    const sessionToken = request.headers.get('authorization')?.replace('Bearer ', '');
+    const sessionToken = request.headers.get('authorization');
     
     if (!sessionToken) {
       return json({ error: 'Not authenticated' }, { status: 401 });

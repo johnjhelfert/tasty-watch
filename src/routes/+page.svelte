@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { authStore } from '../lib/stores/auth.js';
-  import { watchlistsStore } from '../lib/stores/watchlists.js';
-  import { quotesStore } from '../lib/stores/quotes.js';
+  import { authStore } from '$lib/stores/auth';
+  import { watchlistsStore } from '$lib/stores/watchlists';
+  import { quotesStore } from '$lib/stores/quotes';
   import LoginForm from '../lib/components/auth/LoginForm.svelte';
   import WatchlistManager from '../lib/components/watchlist/WatchlistManager.svelte';
   import WatchlistTable from '../lib/components/watchlist/WatchlistTable.svelte';
@@ -21,8 +21,10 @@
     authStore.checkAuth();
   });
 
-  // Load watchlists after successful authentication
-  $: if (auth.isAuthenticated && !watchlists.watchlists.length && !watchlists.isLoading) {
+  // Load watchlists after successful authentication (only once)
+  let hasLoadedWatchlists = false;
+  $: if (auth.isAuthenticated && !hasLoadedWatchlists && !watchlists.isLoading) {
+    hasLoadedWatchlists = true;
     watchlistsStore.loadWatchlists();
   }
 
@@ -30,6 +32,7 @@
     quotesStore.reset();
     watchlistsStore.reset();
     authStore.logout();
+    hasLoadedWatchlists = false;
   }
 
   function handleAddSymbol() {

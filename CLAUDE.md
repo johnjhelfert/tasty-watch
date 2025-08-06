@@ -68,8 +68,8 @@ npm run check
 ## API Integration
 
 ### Authentication Flow
-1. POST `/oauth/token` with OAuth2 credentials → access token (15 min validity)
-2. Include `Authorization: Bearer {token}` header in all requests
+1. POST `/sessions` with username/password credentials → access token
+2. Include `Authorization: {token}` header in all requests
 3. Handle token expiration with automatic validation and re-authentication
 4. Tokens are stored with expiration timestamps for client-side validation
 

@@ -98,7 +98,7 @@ class ApiService {
   private getAuthHeaders(): HeadersInit {
     return {
       ...this.baseHeaders,
-      'Authorization': this.sessionToken ? `Bearer ${this.sessionToken}` : '',
+      'Authorization': this.sessionToken || '',
     };
   }
 

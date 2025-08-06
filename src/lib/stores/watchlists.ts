@@ -4,7 +4,7 @@
  */
 
 import { writable, derived } from 'svelte/store';
-import { apiService, type Watchlist, type WatchlistEntry } from '../services/api.js';
+import { apiService, type Watchlist } from '../services/api.js';
 import { authStore } from './auth.js';
 
 export interface WatchlistsState {
