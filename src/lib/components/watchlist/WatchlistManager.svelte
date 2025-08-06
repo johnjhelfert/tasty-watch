@@ -396,11 +396,6 @@
     transition: background-color 0.2s;
   }
 
-  .watchlist-button:focus {
-    outline: 2px solid #667eea;
-    outline-offset: 2px;
-  }
-
   .watchlist-button:disabled {
     cursor: not-allowed;
     opacity: 0.6;
@@ -437,11 +432,6 @@
   .delete-button:hover:not(:disabled) {
     color: #e53e3e;
     background-color: #fed7d7;
-  }
-
-  .delete-button:focus {
-    outline: 2px solid #e53e3e;
-    outline-offset: 2px;
   }
 
   .delete-button:disabled {
