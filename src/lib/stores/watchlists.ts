@@ -3,7 +3,7 @@
  * Manages watchlist data and operations
  */
 
-import { writable, derived } from 'svelte/store';
+import {writable, derived, get} from 'svelte/store';
 import { apiService, type Watchlist } from '../services/api.js';
 import { authStore } from './auth.js';
 
@@ -55,7 +55,7 @@ function createWatchlistsStore() {
         ...state,
         isLoading: false,
         error: null,
-        watchlists: result.data!,
+        watchlists: result.data?.map(dat => handleDefaultValues(dat)) || [],
         // Set first watchlist as active if none selected
         activeWatchlist: state.activeWatchlist || (result.data!.length > 0 ? result.data![0].name : null)
       }));
@@ -72,7 +72,9 @@ function createWatchlistsStore() {
 
       update(state => ({ ...state, isLoading: true, error: null }));
 
-      const result = await apiService.createWatchlist(name.trim());
+      const currentState = get({ subscribe });
+
+      const result = await apiService.createWatchlist(name.trim(), currentState.watchlists.length);
 
       if (result.error || !result.data) {
         update(state => ({
@@ -87,7 +89,7 @@ function createWatchlistsStore() {
         ...state,
         isLoading: false,
         error: null,
-        watchlists: [...state.watchlists, result.data!],
+        watchlists: [...state.watchlists, handleDefaultValues(result.data!)],
         // Set new watchlist as active if it's the first one
         activeWatchlist: state.activeWatchlist || result.data!.name
       }));
@@ -234,3 +236,9 @@ export const activeWatchlistSymbols = derived(
     return $activeWatchlist['watchlist-entries'].map(entry => entry.symbol);
   }
 );
+
+// have to default the entries for new values due to api not handling it
+const handleDefaultValues = (newWatchlist: Watchlist): Watchlist => ({
+  ...newWatchlist,
+  "watchlist-entries": []
+})

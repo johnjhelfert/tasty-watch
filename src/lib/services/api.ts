@@ -152,7 +152,7 @@ class ApiService {
   /**
    * Create a new watchlist
    */
-  async createWatchlist(name: string): Promise<ApiResponse<Watchlist>> {
+  async createWatchlist(name: string, orderIndex: number): Promise<ApiResponse<Watchlist>> {
     if (!this.sessionToken) {
       return { error: 'Not authenticated' };
     }
@@ -161,7 +161,7 @@ class ApiService {
       const response = await fetch(`${API_BASE_URL}/watchlists`, {
         method: 'POST',
         headers: this.getAuthHeaders(),
-        body: JSON.stringify({ name })
+        body: JSON.stringify({ name, 'watchlist-entries': [], 'order-index': orderIndex })
       });
 
       if (!response.ok) {
