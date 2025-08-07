@@ -4,7 +4,8 @@
  */
 
 import { writable } from 'svelte/store';
-import { apiService, type SessionResponse } from '../services/api.js';
+import { apiService } from '../services/api.js';
+import type { SessionResponse } from '$lib/types/api';
 
 export interface AuthState {
   isAuthenticated: boolean;

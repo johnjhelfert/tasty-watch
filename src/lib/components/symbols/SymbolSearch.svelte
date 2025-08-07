@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { apiService, type SymbolSearchResult } from '$lib/services/api';
+  import { apiService } from '$lib/services/api';
+  import type { SymbolSearchResult } from '$lib/types/api';
   import { debounce } from '$lib/utils/formatters';
   import { activeWatchlist } from '$lib/stores/watchlists';
   

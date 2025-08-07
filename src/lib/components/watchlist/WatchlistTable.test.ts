@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { formatPrice, formatChange, getPriceChangeClass } from '$lib/utils/formatters';
-import type { QuoteData } from '$lib/services/api';
+import type { QuoteData } from '$lib/types/api';
 
 describe('WatchlistTable Component Logic', () => {
 	beforeEach(() => {

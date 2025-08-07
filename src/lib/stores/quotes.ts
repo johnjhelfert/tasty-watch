@@ -3,7 +3,8 @@
  */
 
 import { writable, derived } from 'svelte/store';
-import { apiService, type QuoteData } from '../services/api.js';
+import { apiService } from '../services/api.js';
+import type { QuoteData } from '$lib/types/api';
 
 export interface QuotesState {
   quotes: Record<string, QuoteData>;
