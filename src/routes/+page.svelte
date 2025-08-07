@@ -3,11 +3,12 @@
   import { authStore } from '$lib/stores/auth';
   import { watchlistsStore } from '$lib/stores/watchlists';
   import { quotesStore } from '$lib/stores/quotes';
-  import LoginForm from '../lib/components/auth/LoginForm.svelte';
-  import WatchlistManager from '../lib/components/watchlist/WatchlistManager.svelte';
-  import WatchlistTable from '../lib/components/watchlist/WatchlistTable.svelte';
-  import SymbolSearch from '../lib/components/symbols/SymbolSearch.svelte';
-  import SymbolDetail from '../lib/components/symbols/SymbolDetail.svelte';
+  import LoginForm from '$lib/components/auth/LoginForm.svelte';
+  import WatchlistManager from '$lib/components/watchlist/WatchlistManager.svelte';
+  import WatchlistTable from '$lib/components/watchlist/WatchlistTable.svelte';
+  import SymbolSearch from '$lib/components/symbols/SymbolSearch.svelte';
+  import SymbolDetail from '$lib/components/symbols/SymbolDetail.svelte';
+  import tastyLogo from '$lib/assets/logo.svg';
 
   let showSymbolSearch = false;
   let selectedSymbol = '';
@@ -81,12 +82,12 @@
     <header class="app-header">
       <div class="header-content">
         <div class="header-left">
-          <h1>Tasty Watch</h1>
+          <img src={tastyLogo} alt="Tasty Watch" class="logo" />
+        </div>
+        <div class="header-actions">
           {#if auth.user?.username}
             <span class="username">Welcome, {auth.user.username}</span>
           {/if}
-        </div>
-        <div class="header-actions">
           <button type="button" class="add-symbol-button" on:click={handleAddSymbol}>
             + Add Symbol
           </button>
@@ -173,15 +174,10 @@
     gap: 1rem;
   }
 
-  .header-left h1 {
-    margin: 0;
-    color: #333;
-    font-size: 1.75rem;
-    font-weight: 700;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+  .logo {
+    height: auto;
+    width: 400px;
+    object-fit: contain;
   }
 
   .username {
@@ -277,8 +273,8 @@
       gap: 0.5rem;
     }
 
-    .header-left h1 {
-      font-size: 1.5rem;
+    .logo {
+      height: 2rem;
     }
 
     .header-actions {

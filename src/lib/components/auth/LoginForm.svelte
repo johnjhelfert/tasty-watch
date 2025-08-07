@@ -1,5 +1,6 @@
 <script lang="ts">
   import { authStore } from '$lib/stores/auth';
+  import tastyLogo from "$lib/assets/logo.svg";
   
   let username = '';
   let password = '';
@@ -29,7 +30,7 @@
 <div class="login-container">
   <div class="login-card">
     <header class="login-header">
-      <h1>Tasty Watch</h1>
+      <img src={tastyLogo} alt="Tasty Watch" class="logo" />
       <p>Sign in to your Tastytrade account</p>
     </header>
 
@@ -100,6 +101,14 @@
 </div>
 
 <style>
+
+  .logo {
+    height: auto;
+    width: 400px;
+    margin-left: 50px;
+    object-fit: contain;
+  }
+
   .login-container {
     min-height: 100vh;
     display: flex;
