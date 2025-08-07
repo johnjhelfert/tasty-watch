@@ -2,7 +2,7 @@
 
 A modern, real-time stock watchlist application built with **Svelte** and the **Tastytrade API**. Track your favorite stocks with live market data, manage multiple watchlists, and view detailed price charts.
 
-![Tasty Watch Screenshot](https://via.placeholder.com/800x400/667eea/ffffff?text=Tasty+Watch+Demo)
+![Tasty Watch Screenshot](static/tasty-watch-screen.png)
 
 ## 🚀 Features
 

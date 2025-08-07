@@ -97,7 +97,7 @@
             <th scope="col">Ask Price</th>
             <th scope="col">Last Price</th>
             <th scope="col">Change</th>
-            <th scope="col">Change %</th>
+            <th scope="col" class="change-percent-column">Change %</th>
             <th scope="col" class="actions-column">Actions</th>
           </tr>
         </thead>
@@ -395,6 +395,10 @@
 
   .actions-column {
     width: 80px;
+  }
+
+  .change-percent-column {
+    min-width: 130px;
   }
 
   @media (max-width: 768px) {
