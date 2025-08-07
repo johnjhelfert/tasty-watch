@@ -46,7 +46,7 @@ npm run test:watch
 # Run only tests in src/lib/ directory (same as 'npm run test')
 npm run test:unit
 
-# Run E2E tests (requires built application)
+# Run E2E tests (requires built application) (requires playwright install)
 npm run test:e2e
 
 # Run with coverage reporting
