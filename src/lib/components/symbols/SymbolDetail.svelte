@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { onMount, onDestroy } from 'svelte';
-  import { createChart, ColorType } from 'lightweight-charts';
+  import { onMount, onDestroy, tick } from 'svelte';
+  import { createChart, ColorType, CandlestickSeries } from 'lightweight-charts';
   import { getQuoteBySymbol } from '$lib/stores/quotes';
   import { formatPrice, formatChange, formatPercentage, getPriceChangeClass } from '$lib/utils/formatters';
-  
+
   export let symbol: string;
   export let onClose: () => void = () => {};
 
@@ -19,7 +19,6 @@
   $: changeClass = getPriceChangeClass(netChange);
 
   onMount(() => {
-    initializeChart();
     loadChartData();
   });
 
@@ -30,53 +29,61 @@
   });
 
   function initializeChart() {
-    if (!chartContainer) return;
+    if (!chartContainer) {
+      console.warn('Chart container not found');
+      return;
+    }
 
-    chart = createChart(chartContainer, {
-      width: chartContainer.clientWidth,
-      height: 400,
-      layout: {
-        background: { type: ColorType.Solid, color: '#ffffff' },
-        textColor: '#333333',
-      },
-      grid: {
-        vertLines: { color: '#f0f3f7' },
-        horzLines: { color: '#f0f3f7' },
-      },
-      crosshair: {
-        mode: 1,
-      },
-      rightPriceScale: {
-        borderColor: '#e1e5e9',
-      },
-      timeScale: {
-        borderColor: '#e1e5e9',
-        timeVisible: true,
-        secondsVisible: false,
-      },
-    });
+    try {
+      chart = createChart(chartContainer, {
+        width: chartContainer.clientWidth,
+        height: 400,
+        layout: {
+          background: { type: ColorType.Solid, color: '#ffffff' },
+          textColor: '#333333',
+        },
+        grid: {
+          vertLines: { color: '#f0f3f7' },
+          horzLines: { color: '#f0f3f7' },
+        },
+        crosshair: {
+          mode: 1,
+        },
+        rightPriceScale: {
+          borderColor: '#e1e5e9',
+        },
+        timeScale: {
+          borderColor: '#e1e5e9',
+          timeVisible: true,
+          secondsVisible: false,
+        },
+      });
 
-    candlestickSeries = chart.addCandlestickSeries({
-      upColor: '#38a169',
-      downColor: '#e53e3e',
-      borderDownColor: '#e53e3e',
-      borderUpColor: '#38a169',
-      wickDownColor: '#e53e3e',
-      wickUpColor: '#38a169',
-    });
+      candlestickSeries = chart.addSeries(CandlestickSeries, {
+        upColor: '#38a169',
+        downColor: '#e53e3e',
+        borderDownColor: '#e53e3e',
+        borderUpColor: '#38a169',
+        wickDownColor: '#e53e3e',
+        wickUpColor: '#38a169',
+      });
 
-    // Handle window resize
-    const handleResize = () => {
-      if (chart && chartContainer) {
-        chart.applyOptions({ width: chartContainer.clientWidth });
-      }
-    };
+      // Handle window resize
+      const handleResize = () => {
+        if (chart && chartContainer) {
+          chart.applyOptions({ width: chartContainer.clientWidth });
+        }
+      };
 
-    window.addEventListener('resize', handleResize);
+      window.addEventListener('resize', handleResize);
 
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
+      return () => {
+        window.removeEventListener('resize', handleResize);
+      };
+    } catch (err) {
+      console.error('Failed to initialize chart:', err);
+      throw err;
+    }
   }
 
   async function loadChartData() {
@@ -94,13 +101,17 @@
       // Generate mock 24-hour candlestick data for demonstration
       const mockData = generateMockCandleData(symbol);
       
+      chartData = mockData;
+      isLoading = false;
+      
+      // Initialize chart after DOM is updated
+      await tick();
+      initializeChart();
+      
       if (candlestickSeries) {
         candlestickSeries.setData(mockData);
         chart?.timeScale().fitContent();
       }
-
-      chartData = mockData;
-      isLoading = false;
     } catch (err) {
       error = `Failed to load chart data: ${err instanceof Error ? err.message : 'Unknown error'}`;
       isLoading = false;
