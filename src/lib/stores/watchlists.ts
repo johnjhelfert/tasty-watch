@@ -177,7 +177,7 @@ function createWatchlistsStore() {
       const currentState = get({ subscribe });
       const currentEntries = currentState.watchlists.find(w => w.name === watchlistName)?.["watchlist-entries"];
 
-      const result = await apiService.updateWatchlistSymbols(watchlistName, currentEntries?.filter(entry => entry.symbol === symbol) || []);
+      const result = await apiService.updateWatchlistSymbols(watchlistName, currentEntries?.filter(entry => entry.symbol !== symbol) || []);
 
       if (result.error || !result.data) {
         update(state => ({
@@ -193,7 +193,7 @@ function createWatchlistsStore() {
         isLoading: false,
         error: null,
         watchlists: state.watchlists.map(w =>
-          w.name === watchlistName ? result.data! : w
+          w.name === watchlistName ? handleDefaultValues(result.data!) : w
         )
       }));
 
@@ -239,12 +239,12 @@ export const activeWatchlistSymbols = derived(
   activeWatchlist,
   ($activeWatchlist) => {
     if (!$activeWatchlist) return [];
-    return $activeWatchlist['watchlist-entries'].map(entry => entry.symbol);
+    return $activeWatchlist['watchlist-entries']?.map(entry => entry.symbol);
   }
 );
 
 // have to default the entries for new values due to api not handling it
 const handleDefaultValues = (newWatchlist: Watchlist): Watchlist => ({
+  "watchlist-entries": [],
   ...newWatchlist,
-  "watchlist-entries": []
 })

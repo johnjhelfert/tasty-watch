@@ -128,7 +128,7 @@
             <div class="watchlist-info">
               <span class="watchlist-name">{watchlist.name}</span>
               <span id="watchlist-{watchlist.name}-info" class="symbol-count">
-                {watchlist['watchlist-entries'].length} symbol{watchlist['watchlist-entries'].length !== 1 ? 's' : ''}
+                {watchlist['watchlist-entries']?.length} symbol{watchlist['watchlist-entries']?.length !== 1 ? 's' : ''}
               </span>
             </div>
           </button>

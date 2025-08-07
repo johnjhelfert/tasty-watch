@@ -21,7 +21,7 @@ export interface SessionResponse {
 
 export interface Watchlist {
   name: string;
-  'watchlist-entries': WatchlistEntry[];
+  'watchlist-entries'?: WatchlistEntry[];
   'group-name'?: string;
 }
 
