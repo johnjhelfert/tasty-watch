@@ -157,7 +157,6 @@ src/
 ```bash
 # .env.local
 VITE_TASTYTRADE_API_URL=https://api.cert.tastyworks.com
-VITE_MOCK_API=false  # Set to true for development without API calls
 ```
 
 ## Deployment Notes

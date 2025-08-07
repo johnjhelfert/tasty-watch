@@ -14,7 +14,6 @@ A modern, real-time stock watchlist application built with **Svelte** and the **
 - **📱 Responsive Design** - Mobile-first design that works on all devices
 
 ### Bonus Features ⭐
-- **⚡ WebSocket Streaming** - Real-time market data updates via WebSocket connection
 - **📊 Price Charts** - Interactive 24-hour candlestick charts with TradingView's Lightweight Charts
 - **♿ Accessibility** - WCAG 2.1 AA compliant with full keyboard navigation and screen reader support
 
@@ -25,7 +24,7 @@ A modern, real-time stock watchlist application built with **Svelte** and the **
 - **Language**: TypeScript
 - **Styling**: Modern CSS with Flexbox/Grid
 - **Charts**: Lightweight Charts by TradingView
-- **API**: Tastytrade REST API + WebSocket Streaming
+- **API**: Tastytrade REST API with SvelteKit proxy layer
 - **Accessibility**: WAI-ARIA compliant
 
 ## 📋 Prerequisites
@@ -100,20 +99,24 @@ npm run check:watch
 src/
 ├── lib/
 │   ├── components/          # Reusable UI components
-│   │   ├── auth/           # Authentication components
-│   │   ├── watchlist/      # Watchlist management
-│   │   ├── symbols/        # Symbol search & details
+│   │   ├── auth/           # Authentication forms
+│   │   ├── watchlist/      # Watchlist table and controls
+│   │   ├── symbols/        # Symbol search and details
 │   │   └── ui/             # Generic UI components
-│   ├── services/           # API and WebSocket services
-│   │   ├── api.ts          # Tastytrade API client
-│   │   └── websocket.ts    # WebSocket streaming service
+│   ├── services/           # Client-side services
+│   │   └── api.ts          # HTTP client for internal API routes
 │   ├── stores/             # Svelte stores for state management
-│   │   ├── auth.ts         # Authentication state
+│   │   ├── auth.ts         # Session state management
 │   │   ├── watchlists.ts   # Watchlist data
 │   │   └── quotes.ts       # Real-time quote data
 │   └── utils/              # Utility functions
 │       └── formatters.ts   # Price/number formatting
-├── routes/                 # SvelteKit routes
+├── routes/                 # SvelteKit routes and pages
+│   ├── api/               # Server-side API routes (proxy to Tastytrade)
+│   │   ├── auth/          # Authentication endpoints
+│   │   ├── watchlists/    # Watchlist CRUD operations
+│   │   ├── market-data/   # Market data endpoints
+│   │   └── symbols/       # Symbol search endpoints
 │   └── +page.svelte       # Main application page
 └── app.html               # HTML template
 ```
@@ -122,37 +125,33 @@ src/
 
 ### Environment Variables
 
-The application includes a `.env.local.example` file with default configuration. To customize:
-
-1. Copy the example file:
-   ```bash
-   cp .env.local.example .env.local
-   ```
-
-2. Update values as needed:
-   ```bash
-   # Tastytrade API Configuration
-   VITE_TASTYTRADE_API_URL=https://api.cert.tastyworks.com
-   ```
+```bash
+# .env.local
+VITE_TASTYTRADE_API_URL=https://api.cert.tastyworks.com
+```
 
 **Note**: The default configuration works with Tastytrade's sandbox environment. Most users won't need to modify these values.
 
 ## 📊 API Integration
 
-### Tastytrade API Endpoints Used
+### API Architecture
 
-- **Authentication**: `POST /sessions` - Exchange credentials for session token
-- **Watchlists**: `GET/POST/PUT/DELETE /watchlists` - CRUD operations
-- **Symbol Search**: `GET /symbols/search/{query}` - Autocomplete search
-- **Market Data**: `GET /market-data/{symbol}` - Quote snapshots
-- **WebSocket**: Real-time streaming at `wss://streamer.cert.tastyworks.com`
+The application uses a **proxy pattern** with SvelteKit API routes:
+- Client calls internal API routes (`/api/*`)
+- API routes proxy requests to Tastytrade API
+- Handles authentication and error management server-side
+
+### Internal API Routes
+- **Auth**: `POST /api/auth` - Exchange credentials for session token
+- **Watchlists**: `GET/POST/PUT/DELETE /api/watchlists` - CRUD operations
+- **Symbol Search**: `GET /api/symbols/search/{query}` - Autocomplete search
+- **Market Data**: `GET /api/market-data/{symbol}` - Quote snapshots
 
 ### Rate Limiting & Performance
 
-- **HTTP Polling**: 5-second intervals for quote updates (fallback mode)
-- **WebSocket Streaming**: Preferred method for real-time data
+- **Quote Polling**: 5-second intervals for quote updates
 - **Search Debouncing**: 300ms delay for symbol search to reduce API calls
-- **Error Handling**: Exponential backoff for failed requests with graceful degradation
+- **Error Handling**: Exponential backoff for failed requests
 
 ## ♿ Accessibility Features
 
@@ -182,10 +181,10 @@ The built application will be in the `dist/` directory.
 
 ### Deployment Considerations
 
-- **HTTPS Required** - WebSocket connections require HTTPS in production
 - **CORS Headers** - Ensure proper CORS configuration for API calls
 - **CDN** - Consider using a CDN for static assets
 - **Environment Variables** - Update API URLs for production environment
+- **Rate Limits** - Monitor API rate limits in production environment
 
 ### Recommended Platforms
 
@@ -197,7 +196,6 @@ The built application will be in the `dist/` directory.
 
 The application includes comprehensive error handling and fallback mechanisms:
 
-- **WebSocket Fallback** - Automatically falls back to HTTP polling if WebSocket fails
 - **Network Resilience** - Handles network errors with exponential backoff
 - **Session Management** - Automatic re-authentication for expired sessions
 - **Loading States** - Clear feedback for all async operations
@@ -210,11 +208,6 @@ The application includes comprehensive error handling and fallback mechanisms:
 - Verify Tastytrade sandbox credentials
 - Check network connectivity
 - Ensure API endpoints are accessible
-
-**WebSocket Connection Problems**
-- Application automatically falls back to HTTP polling
-- Check browser console for WebSocket error messages
-- Verify HTTPS is used in production environments
 
 **Chart Display Issues**
 - Ensure sufficient container width for chart rendering
