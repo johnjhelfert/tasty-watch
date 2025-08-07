@@ -133,10 +133,6 @@ The application includes a `.env.local.example` file with default configuration.
    ```bash
    # Tastytrade API Configuration
    VITE_TASTYTRADE_API_URL=https://api.cert.tastyworks.com
-   VITE_TASTYTRADE_WS_URL=wss://streamer.cert.tastyworks.com
-   
-   # Development Configuration
-   VITE_MOCK_API=false  # Set to true for development without API calls
    ```
 
 **Note**: The default configuration works with Tastytrade's sandbox environment. Most users won't need to modify these values.
