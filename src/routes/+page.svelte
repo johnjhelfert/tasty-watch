@@ -297,11 +297,11 @@
     }
 
     .sidebar {
-      order: 2;
+      order: 1;
     }
 
     .content {
-      order: 1;
+      order: 2;
     }
   }
 </style>
