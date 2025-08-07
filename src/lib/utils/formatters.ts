@@ -19,22 +19,6 @@ export function formatPrice(price: number | null | undefined): string {
 }
 
 /**
- * Format price with currency symbol
- */
-export function formatCurrency(price: number | null | undefined): string {
-  if (price === null || price === undefined || isNaN(price)) {
-    return '--';
-  }
-
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  }).format(price);
-}
-
-/**
  * Format percentage change
  */
 export function formatPercentage(value: number | null | undefined): string {
