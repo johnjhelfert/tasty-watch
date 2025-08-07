@@ -142,7 +142,10 @@ function createWatchlistsStore() {
 
       update(state => ({ ...state, isLoading: true, error: null }));
 
-      const result = await apiService.addSymbolToWatchlist(watchlistName, symbol.trim());
+      const currentState = get({ subscribe });
+      const currentEntries = currentState.watchlists.find(w => w.name === watchlistName)?.["watchlist-entries"];
+
+      const result = await apiService.updateWatchlistSymbols(watchlistName, [ ...currentEntries || [], { symbol }]);
 
       if (result.error || !result.data) {
         update(state => ({
@@ -171,7 +174,10 @@ function createWatchlistsStore() {
     async removeSymbol(watchlistName: string, symbol: string): Promise<boolean> {
       update(state => ({ ...state, isLoading: true, error: null }));
 
-      const result = await apiService.removeSymbolFromWatchlist(watchlistName, symbol);
+      const currentState = get({ subscribe });
+      const currentEntries = currentState.watchlists.find(w => w.name === watchlistName)?.["watchlist-entries"];
+
+      const result = await apiService.updateWatchlistSymbols(watchlistName, currentEntries?.filter(entry => entry.symbol === symbol) || []);
 
       if (result.error || !result.data) {
         update(state => ({
@@ -186,7 +192,7 @@ function createWatchlistsStore() {
         ...state,
         isLoading: false,
         error: null,
-        watchlists: state.watchlists.map(w => 
+        watchlists: state.watchlists.map(w =>
           w.name === watchlistName ? result.data! : w
         )
       }));

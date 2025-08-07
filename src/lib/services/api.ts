@@ -27,7 +27,7 @@ export interface Watchlist {
 
 export interface WatchlistEntry {
   symbol: string;
-  'instrument-type': string;
+  'instrument-type'?: string;
 }
 
 export interface QuoteData {
@@ -203,49 +203,26 @@ class ApiService {
   }
 
   /**
-   * Add symbol to watchlist
+   * Update watchlist symbols using PUT request
    */
-  async addSymbolToWatchlist(watchlistName: string, symbol: string): Promise<ApiResponse<Watchlist>> {
+  async updateWatchlistSymbols(watchlistName: string, entries: WatchlistEntry[]): Promise<ApiResponse<Watchlist>> {
     if (!this.sessionToken) {
       return { error: 'Not authenticated' };
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/watchlists/${encodeURIComponent(watchlistName)}/entries`, {
-        method: 'POST',
+      const response = await fetch(`${API_BASE_URL}/watchlists/${encodeURIComponent(watchlistName)}`, {
+        method: 'PUT',
         headers: this.getAuthHeaders(),
-        body: JSON.stringify({ symbol: symbol.toUpperCase() })
+        body: JSON.stringify({
+          name: watchlistName,
+          'watchlistEntries': entries
+        })
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        return { error: errorData.error || `Failed to add symbol: ${response.statusText}` };
-      }
-
-      const result = await response.json();
-      return { data: result.data };
-    } catch (error) {
-      return { error: `Network error: ${error instanceof Error ? error.message : 'Unknown error'}` };
-    }
-  }
-
-  /**
-   * Remove symbol from watchlist
-   */
-  async removeSymbolFromWatchlist(watchlistName: string, symbol: string): Promise<ApiResponse<Watchlist>> {
-    if (!this.sessionToken) {
-      return { error: 'Not authenticated' };
-    }
-
-    try {
-      const response = await fetch(`${API_BASE_URL}/watchlists/${encodeURIComponent(watchlistName)}/entries/${symbol.toUpperCase()}`, {
-        method: 'DELETE',
-        headers: this.getAuthHeaders()
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        return { error: errorData.error || `Failed to remove symbol: ${response.statusText}` };
+        return { error: errorData.error || `Failed to update symbols: ${response.statusText}` };
       }
 
       const result = await response.json();

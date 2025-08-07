@@ -12,15 +12,11 @@ export const GET: RequestHandler = async ({ request }) => {
       return json({ error: 'Not authenticated' }, { status: 401 });
     }
 
-    console.log(getAuthHeaders(sessionToken))
-
     const response = await fetch(`${API_BASE_URL}/watchlists`, {
       headers: getAuthHeaders(sessionToken)
     });
 
     const result = await response.json();
-
-    console.log(result);
 
     if (!response.ok) {
       if (response.status === 401) {
