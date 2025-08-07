@@ -1,27 +1,20 @@
 <script lang="ts">
   import { watchlistsStore } from '$lib/stores/watchlists';
+  import DeleteWatchlistDialog from './DeleteWatchlistDialog.svelte';
+  import CreateWatchlistForm from './CreateWatchlistForm.svelte';
   
   let showCreateForm = false;
-  let newWatchlistName = '';
   let showDeleteConfirm = '';
 
   $: ({ watchlists, activeWatchlist, isLoading, error } = $watchlistsStore);
 
   function toggleCreateForm() {
     showCreateForm = !showCreateForm;
-    if (!showCreateForm) {
-      newWatchlistName = '';
-    }
   }
 
-  async function handleCreateWatchlist(event: Event) {
-    event.preventDefault();
-    
-    if (!newWatchlistName.trim()) return;
-
-    const success = await watchlistsStore.createWatchlist(newWatchlistName);
+  async function handleCreateWatchlist(name: string) {
+    const success = await watchlistsStore.createWatchlist(name);
     if (success) {
-      newWatchlistName = '';
       showCreateForm = false;
     }
   }
@@ -75,34 +68,12 @@
     </div>
   {/if}
 
-  {#if showCreateForm}
-    <form class="create-form" on:submit={handleCreateWatchlist}>
-      <div class="form-group">
-        <label for="watchlist-name" class="sr-only">Watchlist name</label>
-        <input
-          id="watchlist-name"
-          type="text"
-          bind:value={newWatchlistName}
-          placeholder="Enter watchlist name"
-          disabled={isLoading}
-          required
-          maxlength="50"
-          aria-describedby="name-help"
-        />
-        <div id="name-help" class="input-help">
-          Choose a descriptive name for your watchlist
-        </div>
-      </div>
-      <div class="form-actions">
-        <button type="submit" class="save-button" disabled={isLoading || !newWatchlistName.trim()}>
-          {isLoading ? 'Creating...' : 'Create'}
-        </button>
-        <button type="button" class="cancel-button" on:click={toggleCreateForm} disabled={isLoading}>
-          Cancel
-        </button>
-      </div>
-    </form>
-  {/if}
+  <CreateWatchlistForm 
+    isVisible={showCreateForm}
+    {isLoading}
+    onSubmit={handleCreateWatchlist}
+    onCancel={toggleCreateForm}
+  />
 
   <div class="watchlists-list" role="list" aria-label="Your watchlists">
     {#if watchlists.length === 0}
@@ -148,23 +119,13 @@
     {/if}
   </div>
 
-  <!-- Delete confirmation dialog -->
-  {#if showDeleteConfirm}
-    <div class="dialog-overlay" role="dialog" aria-modal="true" aria-labelledby="delete-title">
-      <div class="dialog">
-        <h3 id="delete-title">Delete Watchlist</h3>
-        <p>Are you sure you want to delete "{showDeleteConfirm}"? This action cannot be undone.</p>
-        <div class="dialog-actions">
-          <button type="button" class="delete-confirm" on:click={confirmDelete} disabled={isLoading}>
-            {isLoading ? 'Deleting...' : 'Delete'}
-          </button>
-          <button type="button" class="cancel-button" on:click={cancelDelete} disabled={isLoading}>
-            Cancel
-          </button>
-        </div>
-      </div>
-    </div>
-  {/if}
+  <DeleteWatchlistDialog 
+    isOpen={!!showDeleteConfirm}
+    watchlistName={showDeleteConfirm}
+    {isLoading}
+    onConfirm={confirmDelete}
+    onCancel={cancelDelete}
+  />
 </div>
 
 <style>
@@ -249,100 +210,6 @@
     background-color: rgba(197, 48, 48, 0.1);
   }
 
-  .create-form {
-    background: #f8fafc;
-    border-radius: 8px;
-    padding: 1rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .form-group {
-    margin-bottom: 1rem;
-  }
-
-  .sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-  }
-
-  .create-form input {
-    width: 100%;
-    padding: 0.75rem;
-    border: 2px solid #e2e8f0;
-    border-radius: 6px;
-    font-size: 0.875rem;
-    transition: border-color 0.2s;
-  }
-
-  .create-form input:focus {
-    outline: none;
-    border-color: #667eea;
-  }
-
-  .create-form input:disabled {
-    background-color: #f7fafc;
-    cursor: not-allowed;
-    opacity: 0.6;
-  }
-
-  .input-help {
-    font-size: 0.75rem;
-    color: #666;
-    margin-top: 0.25rem;
-  }
-
-  .form-actions {
-    display: flex;
-    gap: 0.5rem;
-  }
-
-  .save-button {
-    background: #667eea;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s;
-  }
-
-  .save-button:hover:not(:disabled) {
-    background: #5a67d8;
-  }
-
-  .save-button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-
-  .cancel-button {
-    background: none;
-    color: #666;
-    border: 1px solid #e2e8f0;
-    border-radius: 6px;
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
-    cursor: pointer;
-    transition: border-color 0.2s, color 0.2s;
-  }
-
-  .cancel-button:hover:not(:disabled) {
-    border-color: #cbd5e0;
-    color: #4a5568;
-  }
-
-  .cancel-button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
 
   .watchlists-list {
     display: flex;
@@ -439,68 +306,6 @@
     opacity: 0.6;
   }
 
-  .dialog-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    padding: 1rem;
-  }
-
-  .dialog {
-    background: white;
-    border-radius: 12px;
-    padding: 2rem;
-    max-width: 400px;
-    width: 100%;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-  }
-
-  .dialog h3 {
-    margin: 0 0 1rem 0;
-    color: #333;
-    font-size: 1.25rem;
-    font-weight: 700;
-  }
-
-  .dialog p {
-    margin: 0 0 1.5rem 0;
-    color: #666;
-    line-height: 1.5;
-  }
-
-  .dialog-actions {
-    display: flex;
-    gap: 0.75rem;
-    justify-content: flex-end;
-  }
-
-  .delete-confirm {
-    background: #e53e3e;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    padding: 0.75rem 1.5rem;
-    font-size: 0.875rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s;
-  }
-
-  .delete-confirm:hover:not(:disabled) {
-    background: #c53030;
-  }
-
-  .delete-confirm:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
 
   @media (max-width: 768px) {
     .watchlist-manager {
@@ -517,9 +322,5 @@
       font-size: 1rem;
     }
 
-    .dialog {
-      padding: 1.5rem;
-      margin: 1rem;
-    }
   }
 </style>
