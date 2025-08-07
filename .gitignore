@@ -26,3 +26,5 @@ vite.config.ts.timestamp-*
 .idea
 
 .env.local
+/playwright-report/
+/test-results/

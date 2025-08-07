@@ -16,6 +16,7 @@
     const success = await watchlistsStore.createWatchlist(name);
     if (success) {
       showCreateForm = false;
+      watchlistsStore.setActiveWatchlist(name);
     }
   }
 
