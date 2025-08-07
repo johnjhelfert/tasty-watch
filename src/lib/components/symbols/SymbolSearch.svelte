@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { apiService, type SymbolSearchResult } from '../../services/api.js';
-  import { debounce } from '../../utils/formatters.js';
-  import { activeWatchlist } from '../../stores/watchlists.js';
+  import { apiService, type SymbolSearchResult } from '$lib/services/api';
+  import { debounce } from '$lib/utils/formatters';
+  import { activeWatchlist } from '$lib/stores/watchlists';
   
   export let onSymbolSelect: (symbol: string) => void = () => {};
   export let onCancel: () => void = () => {};

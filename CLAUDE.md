@@ -4,10 +4,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Tasty-Watch** is a Svelte-based stock watchlist application that integrates with the Tastytrade API. The application allows users to authenticate, manage multiple watchlists, view real-time market data, and interact with detailed symbol information including price charts.
+**Tasty-Watch** is a SvelteKit-based stock watchlist application that integrates with the Tastytrade API through internal API routes. The application allows users to authenticate, manage multiple watchlists, view real-time market data, and interact with detailed symbol information including price charts.
 
 ### Key Features
-- **Authentication**: OAuth2 access tokens with Tastytrade API
+- **Authentication**: Session-based auth with Tastytrade API
 - **Watchlist Management**: Create, read, update, delete watchlists and symbols
 - **Real-time Data**: WebSocket streaming for live market data updates
 - **Symbol Search**: Autocomplete symbol search functionality  
@@ -27,12 +27,12 @@ This application follows **staff engineer principles** emphasizing:
 - **Accessibility**: WCAG 2.1 AA compliant with semantic HTML
 
 ### Tech Stack
-- **Frontend**: Svelte 4 + Vite (fast builds, minimal bundle size)
-- **HTTP Client**: Native fetch with custom API service layer
+- **Framework**: SvelteKit 2.22.0 + Svelte 5 (full-stack with API routes)
+- **Build Tool**: Vite 7.0.4 (fast builds, minimal bundle size)
+- **HTTP Client**: Native fetch with SvelteKit API proxy layer
 - **WebSocket**: Native WebSocket API with reconnection logic
-- **Charts**: Lightweight Chart library for candlestick visualization
+- **Charts**: Lightweight Charts library for candlestick visualization
 - **Styling**: Modern CSS Grid/Flexbox with CSS custom properties
-- **Testing**: Vitest + @testing-library/svelte
 
 ## Development Commands
 
@@ -49,18 +49,6 @@ npm run build
 # Preview production build
 npm run preview
 
-# Run tests
-npm test
-
-# Run tests in watch mode
-npm run test:watch
-
-# Lint code
-npm run lint
-
-# Format code
-npm run format
-
 # Type check
 npm run check
 ```
@@ -68,16 +56,22 @@ npm run check
 ## API Integration
 
 ### Authentication Flow
-1. POST `/sessions` with username/password credentials → access token
-2. Include `Authorization: {token}` header in all requests
-3. Handle token expiration with automatic validation and re-authentication
-4. Tokens are stored with expiration timestamps for client-side validation
+1. POST `/api/auth` with username/password credentials → session token
+2. Client stores token in localStorage with expiration timestamp
+3. API routes include `Authorization: {token}` header to Tastytrade API
+4. Handle token expiration with automatic validation and re-authentication
 
-### Key Endpoints
-- **Auth**: `POST /oauth/token` - Exchange credentials for OAuth2 access token
-- **Watchlists**: `GET/POST/PUT/DELETE /watchlists` - CRUD operations
-- **Symbol Search**: `GET /symbols/search/{query}` - Autocomplete search
-- **Market Data**: `GET /market-data/{symbol}` - Quote snapshots
+### API Architecture
+The application uses a **proxy pattern** with SvelteKit API routes:
+- Client calls internal API routes (`/api/*`)
+- API routes proxy requests to Tastytrade API
+- Handles authentication and error management server-side
+
+### Internal API Routes
+- **Auth**: `POST /api/auth` - Exchange credentials for session token
+- **Watchlists**: `GET/POST/PUT/DELETE /api/watchlists` - CRUD operations
+- **Symbol Search**: `GET /api/symbols/search/{query}` - Autocomplete search
+- **Market Data**: `GET /api/market-data/{symbol}` - Quote snapshots
 - **Streaming**: WebSocket at `wss://streamer.cert.tastyworks.com` - Real-time data
 
 ### Rate Limiting & Performance
@@ -96,16 +90,22 @@ src/
 │   │   ├── watchlist/      # Watchlist table and controls
 │   │   ├── symbols/        # Symbol search and details
 │   │   └── ui/             # Generic UI components
-│   ├── services/           # API and WebSocket services
-│   │   ├── api.ts          # HTTP API client with OAuth2
+│   ├── services/           # Client-side services
+│   │   ├── api.ts          # HTTP client for internal API routes
 │   │   ├── websocket.ts    # WebSocket manager
 │   ├── stores/             # Svelte stores for state management
-│   │   ├── auth.ts         # OAuth2 session state
+│   │   ├── auth.ts         # Session state management
 │   │   ├── watchlists.ts   # Watchlist data
 │   │   └── quotes.ts       # Real-time quote data
 │   └── utils/              # Utility functions
 │       └── formatters.ts   # Price/number formatting
-├── routes/                 # SvelteKit routes (if using SvelteKit)
+├── routes/                 # SvelteKit routes and pages
+│   ├── api/               # Server-side API routes (proxy to Tastytrade)
+│   │   ├── auth/          # Authentication endpoints
+│   │   ├── watchlists/    # Watchlist CRUD operations
+│   │   ├── market-data/   # Market data endpoints
+│   │   └── symbols/       # Symbol search endpoints
+│   └── +page.svelte       # Main application page
 └── app.html               # HTML template
 ```
 
@@ -134,23 +134,24 @@ src/
 - Screen reader announcements for quote updates
 - High contrast mode support
 
-### Testing Strategy
-- Unit tests for utility functions and API services
-- Component tests for user interactions
-- Integration tests for authentication flow
-- E2E tests for critical user journeys
+### Code Quality
+- Follow existing code patterns and conventions
+- Use TypeScript for type safety
+- Implement error boundaries for graceful failure handling
+- Document complex business logic with comments
 
 ## Common Development Tasks
 
 ### Adding a New Watchlist Feature
 1. Update `watchlists.ts` store with new state
-2. Add API service method in `api.ts`
-3. Create/update UI components
-4. Add tests for new functionality
+2. Add server-side API route in `src/routes/api/`
+3. Update client-side API service in `lib/services/api.ts`
+4. Create/update UI components
 
 ### Integrating New Market Data
-1. Update WebSocket message handlers in `websocket.ts`
+1. Update WebSocket message handlers in `lib/services/websocket.ts`
 2. Update store reactivity in `quotes.ts` store
+3. Add new API route if needed for additional data sources
 4. Test real-time updates
 
 ### Performance Optimization
@@ -165,6 +166,7 @@ src/
 # .env.local
 VITE_TASTYTRADE_API_URL=https://api.cert.tastyworks.com
 VITE_TASTYTRADE_WS_URL=wss://streamer.cert.tastyworks.com
+VITE_MOCK_API=false  # Set to true for development without API calls
 ```
 
 ## Deployment Notes

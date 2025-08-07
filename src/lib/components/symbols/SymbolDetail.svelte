@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
   import { createChart, ColorType } from 'lightweight-charts';
-  import { getQuoteBySymbol } from '../../stores/quotes.js';
-  import { formatPrice, formatChange, formatPercentage, getPriceChangeClass } from '../../utils/formatters.js';
+  import { getQuoteBySymbol } from '$lib/stores/quotes';
+  import { formatPrice, formatChange, formatPercentage, getPriceChangeClass } from '$lib/utils/formatters';
   
   export let symbol: string;
   export let onClose: () => void = () => {};
