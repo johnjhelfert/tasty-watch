@@ -1,8 +1,7 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { getAuthHeaders } from '$lib/utils/auth.js';
-
-const API_BASE_URL = 'https://api.cert.tastyworks.com';
+import { apiConfig } from '$lib/config/api.js';
 
 export const DELETE: RequestHandler = async ({ request, params }) => {
   try {
@@ -12,7 +11,7 @@ export const DELETE: RequestHandler = async ({ request, params }) => {
       return json({ error: 'Not authenticated' }, { status: 401 });
     }
 
-    const response = await fetch(`${API_BASE_URL}/watchlists/${encodeURIComponent(params.name)}`, {
+    const response = await fetch(`${apiConfig.getApiUrl()}/watchlists/${encodeURIComponent(params.name)}`, {
       method: 'DELETE',
       headers: getAuthHeaders(sessionToken)
     });
@@ -47,7 +46,7 @@ export const PUT: RequestHandler = async ({ request, params }) => {
     let method: string;
     let body: string | undefined;
 
-    apiUrl = `${API_BASE_URL}/watchlists/${encodeURIComponent(params.name)}`;
+    apiUrl = `${apiConfig.getApiUrl()}/watchlists/${encodeURIComponent(params.name)}`;
     method = 'PUT';
     body = JSON.stringify({
       name,

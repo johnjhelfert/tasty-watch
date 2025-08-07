@@ -3,6 +3,8 @@
  * Handles connection, subscription management, and message processing
  */
 
+import { apiConfig } from '$lib/config/api.js';
+
 export interface StreamingQuote {
   symbol: string;
   bid: number;
@@ -11,12 +13,6 @@ export interface StreamingQuote {
   change: number;
   changePercent: number;
   timestamp: number;
-}
-
-export interface WebSocketMessage {
-  type: string;
-  data?: any;
-  symbol?: string;
 }
 
 export type QuoteUpdateCallback = (quote: StreamingQuote) => void;
@@ -35,7 +31,7 @@ class WebSocketService {
   private isIntentionallyClosed = false;
   private heartbeatInterval: number | null = null;
 
-  private readonly wsUrl = 'wss://streamer.cert.tastyworks.com';
+  private readonly wsUrl = apiConfig.getWebSocketUrl();
 
   /**
    * Set session token for authentication

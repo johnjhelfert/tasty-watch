@@ -1,13 +1,12 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-
-const API_BASE_URL = 'https://api.cert.tastyworks.com';
+import { apiConfig } from '$lib/config/api.js';
 
 export const POST: RequestHandler = async ({ request }) => {
   try {
     const { username, password } = await request.json();
 
-    const response = await fetch(`${API_BASE_URL}/sessions`, {
+    const response = await fetch(`${apiConfig.getApiUrl()}/sessions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

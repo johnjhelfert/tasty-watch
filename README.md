@@ -51,7 +51,17 @@ cd tasty-watch
 npm install
 ```
 
-### 3. Start Development Server
+### 3. Setup Environment Variables (Optional)
+
+Copy the example environment file and customize if needed:
+
+```bash
+cp .env.local.example .env.local
+```
+
+The default configuration works with Tastytrade's sandbox environment. Only modify if you need custom API endpoints.
+
+### 4. Start Development Server
 
 ```bash
 npm run dev
@@ -59,7 +69,7 @@ npm run dev
 
 The application will be available at `http://localhost:5173`
 
-### 4. Login with Tastytrade Credentials
+### 5. Login with Tastytrade Credentials
 
 Use your Tastytrade sandbox account credentials to log in and start tracking stocks!
 
@@ -112,13 +122,24 @@ src/
 
 ### Environment Variables
 
-Create a `.env.local` file in the project root (optional):
+The application includes a `.env.local.example` file with default configuration. To customize:
 
-```bash
-# Tastytrade API Configuration
-VITE_TASTYTRADE_API_URL=https://api.cert.tastyworks.com
-VITE_TASTYTRADE_WS_URL=wss://streamer.cert.tastyworks.com
-```
+1. Copy the example file:
+   ```bash
+   cp .env.local.example .env.local
+   ```
+
+2. Update values as needed:
+   ```bash
+   # Tastytrade API Configuration
+   VITE_TASTYTRADE_API_URL=https://api.cert.tastyworks.com
+   VITE_TASTYTRADE_WS_URL=wss://streamer.cert.tastyworks.com
+   
+   # Development Configuration
+   VITE_MOCK_API=false  # Set to true for development without API calls
+   ```
+
+**Note**: The default configuration works with Tastytrade's sandbox environment. Most users won't need to modify these values.
 
 ## 📊 API Integration
 

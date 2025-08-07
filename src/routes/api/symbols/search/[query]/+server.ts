@@ -1,8 +1,7 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { getAuthHeaders } from '$lib/utils/auth.js';
-
-const API_BASE_URL = 'https://api.cert.tastyworks.com';
+import { apiConfig } from '$lib/config/api.js';
 
 export const GET: RequestHandler = async ({ request, params }) => {
   try {
@@ -16,7 +15,7 @@ export const GET: RequestHandler = async ({ request, params }) => {
       return json({ data: [] });
     }
 
-    const response = await fetch(`${API_BASE_URL}/symbols/search/${encodeURIComponent(params.query)}`, {
+    const response = await fetch(`${apiConfig.getApiUrl()}/symbols/search/${encodeURIComponent(params.query)}`, {
       headers: getAuthHeaders(sessionToken)
     });
 
