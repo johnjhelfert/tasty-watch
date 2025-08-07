@@ -9,13 +9,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Key Features
 - **Authentication**: Session-based auth with Tastytrade API
 - **Watchlist Management**: Create, read, update, delete watchlists and symbols
-- **Real-time Data**: WebSocket streaming for live market data updates
+- **Real-time Data**: HTTP polling for market data updates
 - **Symbol Search**: Autocomplete symbol search functionality  
 - **Price Charts**: 24-hour candlestick charts for detailed symbol analysis
 - **Accessibility**: WAI-ARIA compliant with keyboard navigation support
 
 ### Bonus Features Implemented
-- **Streaming Market Data**: WebSocket integration instead of polling
 - **Interactive Charts**: Clickable symbols show detailed price charts
 
 ## Architecture & Design Philosophy
@@ -30,7 +29,6 @@ This application follows **staff engineer principles** emphasizing:
 - **Framework**: SvelteKit 2.22.0 + Svelte 5 (full-stack with API routes)
 - **Build Tool**: Vite 7.0.4 (fast builds, minimal bundle size)
 - **HTTP Client**: Native fetch with SvelteKit API proxy layer
-- **WebSocket**: Native WebSocket API with reconnection logic
 - **Charts**: Lightweight Charts library for candlestick visualization
 - **Styling**: Modern CSS Grid/Flexbox with CSS custom properties
 
@@ -72,11 +70,9 @@ The application uses a **proxy pattern** with SvelteKit API routes:
 - **Watchlists**: `GET/POST/PUT/DELETE /api/watchlists` - CRUD operations
 - **Symbol Search**: `GET /api/symbols/search/{query}` - Autocomplete search
 - **Market Data**: `GET /api/market-data/{symbol}` - Quote snapshots
-- **Streaming**: WebSocket at `wss://streamer.cert.tastyworks.com` - Real-time data
 
 ### Rate Limiting & Performance
-- **Quote Polling**: 5-second intervals (fallback mode)
-- **WebSocket**: Preferred for real-time updates
+- **Quote Polling**: 5-second intervals
 - **Search Debouncing**: 300ms delay for symbol search
 - **Error Handling**: Exponential backoff for failed requests
 
@@ -92,7 +88,6 @@ src/
 │   │   └── ui/             # Generic UI components
 │   ├── services/           # Client-side services
 │   │   ├── api.ts          # HTTP client for internal API routes
-│   │   ├── websocket.ts    # WebSocket manager
 │   ├── stores/             # Svelte stores for state management
 │   │   ├── auth.ts         # Session state management
 │   │   ├── watchlists.ts   # Watchlist data
@@ -119,7 +114,6 @@ src/
 ### Error Handling
 - Centralized error handling in API service layer
 - User-friendly error messages with actionable guidance
-- Graceful degradation when WebSocket unavailable
 
 ### Performance Considerations
 - Use `tick()` for DOM updates before measurements
@@ -149,15 +143,13 @@ src/
 4. Create/update UI components
 
 ### Integrating New Market Data
-1. Update WebSocket message handlers in `lib/services/websocket.ts`
-2. Update store reactivity in `quotes.ts` store
-3. Add new API route if needed for additional data sources
-4. Test real-time updates
+1. Update store reactivity in `quotes.ts` store
+2. Add new API route if needed for additional data sources
+3. Test polling updates
 
 ### Performance Optimization
 - Profile with Chrome DevTools
 - Check bundle size with `npm run build`
-- Monitor WebSocket message frequency
 - Review Svelte reactive statement efficiency
 
 ## Environment Variables
@@ -165,13 +157,11 @@ src/
 ```bash
 # .env.local
 VITE_TASTYTRADE_API_URL=https://api.cert.tastyworks.com
-VITE_TASTYTRADE_WS_URL=wss://streamer.cert.tastyworks.com
 VITE_MOCK_API=false  # Set to true for development without API calls
 ```
 
 ## Deployment Notes
 
 - Build artifacts in `dist/` directory
-- Requires HTTPS for WebSocket connections in production
 - Consider CDN for static assets
 - Monitor API rate limits in production environment

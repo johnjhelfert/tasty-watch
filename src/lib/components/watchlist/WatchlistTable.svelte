@@ -16,8 +16,7 @@
   // Start/stop streaming when symbols change
   $: {
     if (symbols?.length) {
-      // Pass session token for WebSocket streaming (Bonus 1)
-      quotesStore.startStreaming(symbols, auth.isAuthenticated ? 'session-token' : undefined);
+      quotesStore.startStreaming(symbols);
     } else {
       quotesStore.stopStreaming();
     }
@@ -69,10 +68,6 @@
           Last updated: {formatLastUpdated(quotes.lastUpdated)}
           {#if quotes.isLoading}
             <span class="loading-indicator" aria-label="Loading">⟳</span>
-          {:else if quotes.isStreaming && quotes.connectionStatus === 'connected'}
-            <span class="streaming-indicator" aria-label="Live streaming">🔴 LIVE</span>
-          {:else if quotes.connectionStatus === 'connecting'}
-            <span class="connecting-indicator" aria-label="Connecting">🟡 Connecting...</span>
           {/if}
         </div>
       </div>
@@ -231,28 +226,12 @@
     display: inline-block;
   }
 
-  .streaming-indicator {
-    color: #e53e3e;
-    font-weight: 600;
-    font-size: 0.75rem;
-    animation: pulse 2s infinite;
-  }
-
-  .connecting-indicator {
-    color: #d69e2e;
-    font-weight: 600;
-    font-size: 0.75rem;
-  }
 
   @keyframes spin {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
   }
 
-  @keyframes pulse {
-    0%, 50%, 100% { opacity: 1; }
-    25%, 75% { opacity: 0.5; }
-  }
 
   .error-banner {
     background-color: #fed7d7;
