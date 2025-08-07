@@ -15,7 +15,8 @@
   let chartData: any[] = [];
 
   $: quote = $getQuoteBySymbol(symbol);
-  $: changeClass = getPriceChangeClass(quote?.['net-change']);
+  $: netChange = quote ? parseFloat(quote.last) - parseFloat(quote['prev-close']) : 0;
+  $: changeClass = getPriceChangeClass(netChange);
 
   onMount(() => {
     initializeChart();
@@ -85,8 +86,8 @@
     error = '';
 
     try {
-      // Note: This is a mock implementation since the Tastytrade candle endpoint
-      // details aren't fully specified in the requirements.
+      // Note: This is a mock implementation,
+      //   authenticating with the websockets for candle would require full account access
       // In a real implementation, this would fetch from:
       // https://developer.tastytrade.com/streaming-market-data/#candle-events
       
@@ -110,7 +111,7 @@
     // Generate 24 hours of hourly candlestick data
     const data = [];
     const now = Date.now();
-    const basePrice = quote?.['last-price'] || 100;
+    const basePrice = parseFloat(quote?.last || '100');
     let currentPrice = basePrice;
 
     for (let i = 24; i >= 0; i--) {
@@ -155,9 +156,9 @@
         <h2 id="detail-title" class="symbol-title">{symbol}</h2>
         {#if quote}
           <div class="price-info">
-            <span class="current-price">${formatPrice(quote['last-price'])}</span>
+            <span class="current-price">${formatPrice(parseFloat(quote.last))}</span>
             <span class="price-change {changeClass}">
-              {formatChange(quote['net-change'])} ({formatPercentage(quote['net-change-percent'])})
+              {formatChange(netChange)} ({formatPercentage((netChange / parseFloat(quote['prev-close'])) * 100)})
             </span>
           </div>
         {/if}
@@ -215,32 +216,32 @@
             <div class="details-grid">
               <div class="detail-item">
                 <span class="detail-label">Bid Price</span>
-                <span class="detail-value">${formatPrice(quote['bid-price'])}</span>
+                <span class="detail-value">${formatPrice(parseFloat(quote.bid))}</span>
               </div>
               <div class="detail-item">
                 <span class="detail-label">Ask Price</span>
-                <span class="detail-value">${formatPrice(quote['ask-price'])}</span>
+                <span class="detail-value">${formatPrice(parseFloat(quote.ask))}</span>
               </div>
               <div class="detail-item">
                 <span class="detail-label">Last Price</span>
-                <span class="detail-value">${formatPrice(quote['last-price'])}</span>
+                <span class="detail-value">${formatPrice(parseFloat(quote.last))}</span>
               </div>
               <div class="detail-item">
                 <span class="detail-label">Net Change</span>
                 <span class="detail-value {changeClass}">
-                  {formatChange(quote['net-change'])}
+                  {formatChange(netChange)}
                 </span>
               </div>
               <div class="detail-item">
                 <span class="detail-label">% Change</span>
                 <span class="detail-value {changeClass}">
-                  {formatPercentage(quote['net-change-percent'])}
+                  {formatPercentage((netChange / parseFloat(quote['prev-close'])) * 100)}
                 </span>
               </div>
               <div class="detail-item">
                 <span class="detail-label">Spread</span>
                 <span class="detail-value">
-                  ${formatPrice((quote['ask-price'] || 0) - (quote['bid-price'] || 0))}
+                  ${formatPrice(parseFloat(quote.ask) - parseFloat(quote.bid))}
                 </span>
               </div>
             </div>

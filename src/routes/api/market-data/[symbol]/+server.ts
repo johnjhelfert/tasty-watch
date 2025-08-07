@@ -21,16 +21,8 @@ export const GET: RequestHandler = async ({ request, params }) => {
     }
 
     const data = await response.json();
-    const quote = {
-      symbol: params.symbol.toUpperCase(),
-      'bid-price': data['bid-price'] || 0,
-      'ask-price': data['ask-price'] || 0,
-      'last-price': data['last-price'] || 0,
-      'net-change': data['net-change'] || 0,
-      'net-change-percent': data['net-change-percent'] || 0
-    };
 
-    return json({ data: quote });
+    return json(data);
   } catch (error) {
     return json({ 
       error: `Network error: ${error instanceof Error ? error.message : 'Unknown error'}` 

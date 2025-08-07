@@ -32,11 +32,25 @@ export interface WatchlistEntry {
 
 export interface QuoteData {
   symbol: string;
-  'bid-price': number;
-  'ask-price': number;
-  'last-price': number;
-  'net-change': number;
-  'net-change-percent': number;
+  ask: string;
+  'ask-size': number;
+  bid: string;
+  'bid-size': number;
+  close: string;
+  'day-high-price': string;
+  'day-low-price': string;
+  'instrument-type': string;
+  'is-trading-halted': boolean;
+  last: string;
+  mark: string;
+  mid: string;
+  open: string;
+  'prev-close': string;
+  'prev-close-date': string;
+  'summary-date': string;
+  'updated-at': string;
+  'year-high-price': string;
+  'year-low-price': string;
 }
 
 export interface SymbolSearchResult {

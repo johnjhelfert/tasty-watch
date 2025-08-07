@@ -32,7 +32,7 @@ function createQuotesStore() {
   let currentSymbols: string[] = [];
   let wsQuoteUnsubscribe: (() => void) | null = null;
   let wsStatusUnsubscribe: (() => void) | null = null;
-  let useWebSocket = true; // Prefer WebSocket over polling
+  let useWebSocket = import.meta.env.VITE_ENABLE_STREAMING !== 'false'; // Check env var for streaming
 
   return {
     subscribe,
@@ -51,7 +51,7 @@ function createQuotesStore() {
         return;
       }
 
-      // Try WebSocket streaming first (Bonus 1)
+      // Try WebSocket streaming first if enabled (Bonus 1)
       if (useWebSocket && sessionToken) {
         const streamingStarted = await this.startWebSocketStreaming(symbols, sessionToken);
         if (streamingStarted) {
@@ -61,7 +61,7 @@ function createQuotesStore() {
         console.warn('WebSocket streaming failed, falling back to polling');
       }
 
-      // Use HTTP polling as fallback
+      // Use HTTP polling as fallback or when streaming is disabled
       await this.startPolling(symbols);
     },
 
@@ -119,11 +119,25 @@ function createQuotesStore() {
     handleWebSocketQuote(streamingQuote: StreamingQuote): void {
       const quoteData: QuoteData = {
         symbol: streamingQuote.symbol,
-        'bid-price': streamingQuote.bid,
-        'ask-price': streamingQuote.ask,
-        'last-price': streamingQuote.last,
-        'net-change': streamingQuote.change,
-        'net-change-percent': streamingQuote.changePercent
+        ask: streamingQuote.ask.toString(),
+        'ask-size': 0,
+        bid: streamingQuote.bid.toString(),
+        'bid-size': 0,
+        close: streamingQuote.last.toString(),
+        'day-high-price': streamingQuote.last.toString(),
+        'day-low-price': streamingQuote.last.toString(),
+        'instrument-type': 'Equity',
+        'is-trading-halted': false,
+        last: streamingQuote.last.toString(),
+        mark: streamingQuote.last.toString(),
+        mid: ((streamingQuote.ask + streamingQuote.bid) / 2).toString(),
+        open: streamingQuote.last.toString(),
+        'prev-close': (streamingQuote.last - streamingQuote.change).toString(),
+        'prev-close-date': new Date().toISOString().split('T')[0],
+        'summary-date': new Date().toISOString().split('T')[0],
+        'updated-at': new Date().toISOString(),
+        'year-high-price': streamingQuote.last.toString(),
+        'year-low-price': streamingQuote.last.toString()
       };
 
       update(state => ({
@@ -219,30 +233,6 @@ function createQuotesStore() {
         quotes: quotesRecord,
         lastUpdated: new Date()
       }));
-    },
-
-    /**
-     * Legacy method for backward compatibility
-     */
-    async startPollingLegacy(symbols: string[]): Promise<void> {
-      return this.startStreaming(symbols);
-    },
-
-    /**
-     * Legacy method for backward compatibility
-     */
-    stopPollingLegacy(): void {
-      this.stopStreaming();
-    },
-
-    /**
-     * Get quote for specific symbol
-     */
-    getQuote: (symbol: string) => {
-      let currentState: QuotesState;
-      const unsubscribe = subscribe(state => currentState = state);
-      unsubscribe();
-      return currentState!.quotes[symbol.toUpperCase()] || null;
     },
 
     /**

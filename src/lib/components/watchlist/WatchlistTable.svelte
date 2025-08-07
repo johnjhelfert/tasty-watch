@@ -15,7 +15,7 @@
 
   // Start/stop streaming when symbols change
   $: {
-    if (symbols.length > 0) {
+    if (symbols?.length) {
       // Pass session token for WebSocket streaming (Bonus 1)
       quotesStore.startStreaming(symbols, auth.isAuthenticated ? 'session-token' : undefined);
     } else {
@@ -55,7 +55,7 @@
       <h3>No Watchlist Selected</h3>
       <p>Create a new watchlist or select an existing one to view market data.</p>
     </div>
-  {:else if symbols.length === 0}
+  {:else if symbols?.length === 0}
     <div class="empty-state">
       <div class="empty-icon">📈</div>
       <h3>Empty Watchlist</h3>
@@ -107,58 +107,61 @@
           </tr>
         </thead>
         <tbody>
-          {#each symbols as symbol}
-            {@const quote = $getQuoteBySymbol(symbol)}
-            {@const changeClass = getPriceChangeClass(quote?.['net-change'])}
-            <tr 
-              class="symbol-row {changeClass}"
-              tabindex="0"
-              role="button"
-              aria-label="View details for {symbol}"
-              on:click={(e) => handleSymbolClick(symbol, e)}
-              on:keydown={(e) => handleKeydown(e, symbol)}
-            >
-              <td class="symbol-cell">
-                <span class="symbol-text">{symbol}</span>
-              </td>
-              <td class="price-cell">
-                <span class="price-value">
-                  ${formatPrice(quote?.['bid-price'])}
-                </span>
-              </td>
-              <td class="price-cell">
-                <span class="price-value">
-                  ${formatPrice(quote?.['ask-price'])}
-                </span>
-              </td>
-              <td class="price-cell">
-                <span class="price-value last-price">
-                  ${formatPrice(quote?.['last-price'])}
-                </span>
-              </td>
-              <td class="change-cell {changeClass}">
-                <span class="change-value">
-                  {formatChange(quote?.['net-change'])}
-                </span>
-              </td>
-              <td class="change-cell {changeClass}">
-                <span class="change-value">
-                  {formatPercentage(quote?.['net-change-percent'])}
-                </span>
-              </td>
-              <td class="actions-cell">
-                <button
-                  type="button"
-                  class="remove-button"
-                  on:click={(e) => handleRemoveSymbol(symbol, e)}
-                  aria-label="Remove {symbol} from watchlist"
-                  title="Remove from watchlist"
-                >
-                  ✕
-                </button>
-              </td>
-            </tr>
-          {/each}
+          {#if symbols?.length}
+            {#each symbols as symbol}
+              {@const quote = $getQuoteBySymbol(symbol)}
+              {@const netChange = quote ? parseFloat(quote.last) - parseFloat(quote['prev-close']) : 0}
+              {@const changeClass = getPriceChangeClass(netChange)}
+              <tr
+                class="symbol-row {changeClass}"
+                tabindex="0"
+                role="button"
+                aria-label="View details for {symbol}"
+                on:click={(e) => handleSymbolClick(symbol, e)}
+                on:keydown={(e) => handleKeydown(e, symbol)}
+              >
+                <td class="symbol-cell">
+                  <span class="symbol-text">{symbol}</span>
+                </td>
+                <td class="price-cell">
+                  <span class="price-value">
+                    ${formatPrice(parseFloat(quote?.bid || '0'))}
+                  </span>
+                </td>
+                <td class="price-cell">
+                  <span class="price-value">
+                    ${formatPrice(parseFloat(quote?.ask || '0'))}
+                  </span>
+                </td>
+                <td class="price-cell">
+                  <span class="price-value last-price">
+                    ${formatPrice(parseFloat(quote?.last || '0'))}
+                  </span>
+                </td>
+                <td class="change-cell {changeClass}">
+                  <span class="change-value">
+                    {formatChange(netChange)}
+                  </span>
+                </td>
+                <td class="change-cell {changeClass}">
+                  <span class="change-value">
+                    {formatPercentage(quote ? (netChange / parseFloat(quote['prev-close'])) * 100 : 0)}
+                  </span>
+                </td>
+                <td class="actions-cell">
+                  <button
+                    type="button"
+                    class="remove-button"
+                    on:click={(e) => handleRemoveSymbol(symbol, e)}
+                    aria-label="Remove {symbol} from watchlist"
+                    title="Remove from watchlist"
+                  >
+                    ✕
+                  </button>
+                </td>
+              </tr>
+            {/each}
+          {/if}
         </tbody>
       </table>
     </div>
