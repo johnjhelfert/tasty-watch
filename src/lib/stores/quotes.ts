@@ -1,6 +1,5 @@
 /**
  * Quotes store
- * Manages real-time market data and quote updates with WebSocket streaming
  */
 
 import { writable, derived } from 'svelte/store';

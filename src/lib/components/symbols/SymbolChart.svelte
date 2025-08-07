@@ -91,8 +91,8 @@
     try {
       // Note: This is a mock implementation,
       //   authenticating with the websockets for candle would require full account access
-      // In a real implementation, this would fetch from:
-      // https://developer.tastytrade.com/streaming-market-data/#candle-events
+      //   In a real implementation, this would fetch from:
+      //   https://developer.tastytrade.com/streaming-market-data/#candle-events
       
       // Generate mock 24-hour candlestick data for demonstration
       const mockData = generateMockCandleData(symbol);
